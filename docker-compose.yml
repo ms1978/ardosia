@@ -1,0 +1,14 @@
+services:
+  ardosia:
+    build: .
+    ports:
+      - "8787:8787"
+    volumes:
+      - ${VAULT_PATH:-./caderno}:/data/caderno
+    environment:
+      - MS78_API_TOKEN=${MS78_API_TOKEN:-muda_este_token}
+      - VAULT_PATH=/data/caderno
+      - SYNC_TARGET=${SYNC_TARGET:-}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    restart: unless-stopped

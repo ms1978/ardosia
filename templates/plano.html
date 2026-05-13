@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ardósia — Plano</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#00d4aa">
+  <style>
+    :root {
+      --bg:      #0d1117;
+      --surface: #161b22;
+      --surface2:#1c2128;
+      --border:  #30363d;
+      --accent:  #00d4aa;
+      --accent2: #0ea5e9;
+      --success: #3fb950;
+      --danger:  #f85149;
+      --warn:    #d29922;
+      --text:    #e6edf3;
+      --muted:   #8b949e;
+      --radius:  10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px; min-height: 100vh;
+    }
+    header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 20px; height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 9px; }
+    .logo-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 11px; color: #000;
+    }
+    .logo-text { font-weight: 600; font-size: 15px; }
+    .nav-links { display: flex; gap: 14px; align-items: center; }
+    a.back {
+      color: var(--text); font-size: 13px; text-decoration: none;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 5px 12px;
+    }
+    a.back:hover { border-color: var(--accent); color: var(--accent); }
+
+    main { max-width: 640px; margin: 0 auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    .day-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 14px;
+    }
+    .day-nav button {
+      background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 6px 14px; font-size: 16px; cursor: pointer;
+      font-family: inherit; transition: border-color .15s;
+    }
+    .day-nav button:hover { border-color: var(--accent); color: var(--accent); }
+    .day-nav button:disabled { opacity: .3; cursor: default; }
+    #dayLabel { font-size: 15px; font-weight: 600; }
+    #dayLabel .rel { font-size: 12px; color: var(--accent2); margin-left: 8px; font-weight: 400; }
+
+    .add-row { display: flex; gap: 8px; }
+    input[type=text] {
+      flex: 1; background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 10px 12px; font-family: inherit; font-size: 15px;
+      transition: border-color .2s;
+    }
+    input[type=text]:focus { outline: none; border-color: var(--accent); }
+    .btn-add {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-weight: 700; border: none; border-radius: var(--radius);
+      padding: 10px 18px; font-size: 18px; cursor: pointer;
+    }
+
+    .section-label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+
+    .item {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 12px;
+      transition: border-color .15s;
+    }
+    .item + .item { margin-top: 6px; }
+    .item.done      { opacity: .55; }
+    .item.abandoned { opacity: .4; }
+    .sym { font-size: 15px; font-family: monospace; min-width: 16px; text-align: center; color: var(--muted); }
+    .item.pending  .sym { color: var(--accent); }
+    .item.done     .sym { color: var(--success); }
+    .item.abandoned .sym { color: var(--danger); }
+    .item-text { flex: 1; font-size: 14px; cursor: pointer; }
+    .item.done .item-text { text-decoration: line-through; }
+    .item-actions { display: flex; gap: 5px; }
+    button.act {
+      background: var(--surface2); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 5px;
+      padding: 4px 9px; font-size: 13px; font-family: monospace; cursor: pointer;
+      transition: color .15s, border-color .15s;
+    }
+    .act.done-btn:hover { color: var(--success); border-color: var(--success); }
+    .act.abn-btn:hover  { color: var(--danger);  border-color: var(--danger); }
+    .act.mig-btn:hover  { color: var(--accent2); border-color: var(--accent2); }
+    .act.undo-btn:hover { color: var(--muted); }
+
+    .empty { color: var(--muted); font-size: 13px; padding: 12px 0; }
+
+    #status { font-size: 13px; min-height: 18px; }
+    #status.ok  { color: var(--success); }
+    #status.err { color: var(--danger); }
+
+    .legend {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      font-size: 11px; color: var(--muted);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 8px 12px;
+    }
+    .legend b { font-family: monospace; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">MS</div>
+    <div class="logo-text">Ardósia</div>
+  </div>
+  <div class="nav-links">
+    <a class="back" href="/checklist">← hoje</a>
+    <a class="back" href="/dashboard">dashboard</a>
+  </div>
+</header>
+
+<main>
+  <div class="day-nav">
+    <button id="btnPrev">←</button>
+    <span id="dayLabel">—</span>
+    <button id="btnNext">→</button>
+  </div>
+
+  <div class="add-row">
+    <input id="input" type="text" placeholder="Adicionar item para este dia…" autocomplete="off">
+    <button class="btn-add" id="btnAdd">+</button>
+  </div>
+
+  <div class="section-label" id="listLabel">Items</div>
+  <div id="itemList"></div>
+  <div id="status"></div>
+
+  <div class="legend">
+    <span><b>•</b> pendente</span>
+    <span><b>×</b> feito</span>
+    <span><b>~</b> abandonado</span>
+    <span><b>&gt;</b> migrar para amanhã</span>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const API   = window.location.origin;
+const TOKEN = localStorage.getItem('ms78token') || 'muda_este_token';
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function post(url, body) {
+  return fetch(API + url, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-MS78-Token': TOKEN},
+    body: JSON.stringify(body)
+  }).then(r => r.json());
+}
+function addDays(date, n) {
+  const d = new Date(date + 'T12:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+function relLabel(date) {
+  const today    = new Date().toISOString().slice(0, 10);
+  const tomorrow = addDays(today, 1);
+  const yesterday = addDays(today, -1);
+  if (date === today)     return 'hoje';
+  if (date === tomorrow)  return 'amanhã';
+  if (date === yesterday) return 'ontem';
+  return '';
+}
+
+// state
+let currentDate = addDays(new Date().toISOString().slice(0,10), 1); // default: amanhã
+let allItems = [];
+let today = '';
+
+// parse ?date= from URL
+const params = new URLSearchParams(window.location.search);
+if (params.get('date')) currentDate = params.get('date');
+
+async function load() {
+  const j = await fetch(API + '/api/checklist').then(r => r.json());
+  if (!j.ok) return;
+  allItems = j.items;
+  today = j.today;
+  render();
+}
+
+function render() {
+  const rel = relLabel(currentDate);
+  $('dayLabel').innerHTML = `${currentDate}${rel ? `<span class="rel">${rel}</span>` : ''}`;
+  $('btnPrev').disabled = false;
+  $('btnNext').disabled = false;
+
+  const items = allItems.filter(i => i.date === currentDate);
+  const pending   = items.filter(i => i.status === 'pending');
+  const migrated  = items.filter(i => i.status === 'migrated');
+  const done      = items.filter(i => i.status === 'done');
+  const abandoned = items.filter(i => i.status === 'abandoned');
+  const sorted    = [...pending, ...migrated, ...done, ...abandoned];
+
+  if (!sorted.length) {
+    $('itemList').innerHTML = `<div class="empty">Sem items para este dia.</div>`;
+    return;
+  }
+
+  $('itemList').innerHTML = sorted.map(i => {
+    const sym = {pending:'•', done:'×', abandoned:'~', migrated:'>'}[i.status] || '•';
+    let acts = '';
+    if (i.status === 'pending') {
+      acts = `<button class="act done-btn" onclick="upd('${i.id}','done')" title="Feito">×</button>
+              <button class="act mig-btn"  onclick="upd('${i.id}','migrated')" title="Amanhã">&gt;</button>
+              <button class="act abn-btn"  onclick="upd('${i.id}','abandoned')" title="Abandonar">~</button>`;
+    } else {
+      acts = `<button class="act undo-btn" onclick="upd('${i.id}','pending')" title="Repor">↩</button>`;
+    }
+    return `<div class="item ${i.status}">
+      <span class="sym">${sym}</span>
+      <span class="item-text" onclick="toggleDone('${i.id}','${i.status}')">${esc(i.text)}</span>
+      <div class="item-actions">${acts}</div>
+    </div>`;
+  }).join('');
+}
+
+async function upd(id, status) {
+  await post('/api/checklist/update', {id, status});
+  await load();
+}
+async function toggleDone(id, status) {
+  await upd(id, status === 'pending' ? 'done' : 'pending');
+}
+
+async function addItem() {
+  const inp = $('input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const j = await fetch(API + '/api/checklist/add', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-MS78-Token': TOKEN},
+    body: JSON.stringify({text, date: currentDate})
+  }).then(r => r.json());
+  inp.value = '';
+  inp.focus();
+  await load();
+}
+
+function navigate(delta) {
+  currentDate = addDays(currentDate, delta);
+  render();
+}
+
+$('btnAdd').onclick  = addItem;
+$('btnPrev').onclick = () => navigate(-1);
+$('btnNext').onclick = () => navigate(1);
+$('input').addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
+
+load();
+setInterval(load, 20000);
+</script>
+</body>
+</html>

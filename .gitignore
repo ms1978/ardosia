@@ -1,0 +1,11 @@
+# dados pessoais — não versionar
+caderno/diarios/*.md
+caderno/diarios/*/
+.env
+
+# python
+__pycache__/
+*.pyc
+
+# docker
+*.log

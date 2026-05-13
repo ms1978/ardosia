@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ardósia — Notas</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#00d4aa">
+  <style>
+    :root {
+      --bg:      #0d1117;
+      --surface: #161b22;
+      --surface2:#1c2128;
+      --border:  #30363d;
+      --accent:  #00d4aa;
+      --accent2: #0ea5e9;
+      --success: #3fb950;
+      --danger:  #f85149;
+      --text:    #e6edf3;
+      --muted:   #8b949e;
+      --radius:  10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px; min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px; height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 9px; }
+    .logo-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 11px; color: #000;
+    }
+    .logo-text { font-weight: 600; font-size: 15px; }
+    a.back {
+      color: var(--text); font-size: 13px; text-decoration: none;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 5px 12px;
+    }
+    a.back:hover { border-color: var(--accent); color: var(--accent); }
+
+    main {
+      max-width: 680px; margin: 0 auto;
+      padding: 20px 16px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+
+    textarea {
+      width: 100%; background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 12px; font-family: inherit; font-size: 15px;
+      min-height: 140px; resize: vertical; line-height: 1.6;
+      transition: border-color .2s;
+    }
+    textarea:focus { outline: none; border-color: var(--accent); }
+
+    .prefix-grid { display: flex; gap: 6px; flex-wrap: wrap; }
+    .prefix-btn {
+      background: var(--surface); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 5px 11px; font-size: 12px; cursor: pointer;
+      font-family: inherit; transition: background .15s, border-color .15s, color .15s;
+    }
+    .prefix-btn:hover {
+      background: rgba(0,212,170,.1);
+      border-color: var(--accent); color: var(--accent);
+    }
+
+    .btn-row { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+    button {
+      border: none; border-radius: 6px; padding: 8px 16px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      font-family: inherit; transition: opacity .15s;
+    }
+    .btn-send {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-weight: 700; padding: 9px 24px;
+    }
+    .btn-ghost {
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--surface2); }
+
+    #status { font-size: 13px; min-height: 20px; transition: color .2s; }
+    #status.ok  { color: var(--success); }
+    #status.err { color: var(--danger); }
+
+    .viewer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px; color: var(--muted);
+    }
+    select {
+      background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 5px 8px; font-family: inherit; font-size: 13px;
+    }
+
+    pre {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px;
+      font-size: 12px; font-family: 'SF Mono', 'Fira Code', monospace;
+      white-space: pre-wrap; line-height: 1.7;
+      max-height: 400px; overflow-y: auto;
+    }
+
+    .hint { font-size: 12px; color: var(--muted); }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">MS</div>
+    <div class="logo-text">Ardósia</div>
+  </div>
+  <a class="back" href="/dashboard">← dashboard</a>
+</header>
+
+<main>
+  <textarea id="msg" placeholder="Escreve aqui..."></textarea>
+
+  <div class="prefix-grid">
+    <button class="prefix-btn" onclick="prefixo('canal: ')">⬛ CANAL</button>
+    <button class="prefix-btn" onclick="prefixo('sat: ')">✦ SAT</button>
+    <button class="prefix-btn" onclick="prefixo('resumo: ')">⚡ RESUMO</button>
+    <button class="prefix-btn" onclick="prefixo('nota: ')">📝 NOTA</button>
+    <button class="prefix-btn" onclick="prefixo('alerta: ')">⚠️ ALERTA</button>
+    <button class="prefix-btn" onclick="prefixo('importante: ')">🔒 IMPORTANTE</button>
+  </div>
+
+  <div class="btn-row">
+    <span class="hint">Ctrl+Enter envia</span>
+    <button class="btn-send" id="send">➤ Enviar</button>
+  </div>
+
+  <div id="status"></div>
+
+  <div class="viewer-header">
+    <span>📅 Diário</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="selDate"></select>
+      <button class="btn-ghost" id="btnAbrir">Abrir</button>
+    </div>
+  </div>
+
+  <pre id="viewer">[a carregar...]</pre>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const API   = window.location.origin;
+const TOKEN = localStorage.getItem('ms78token') || 'muda_este_token';
+
+function prefixo(p) {
+  const ta = $("msg");
+  const re = /^(canal|sat|resumo|nota|alerta|importante|concluido):\s*/i;
+  ta.value = re.test(ta.value) ? ta.value.replace(re, p) : p + ta.value;
+  ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
+}
+
+async function enviar() {
+  const text = $("msg").value.trim();
+  if (!text) return;
+  const st = $("status");
+  st.className = ""; st.textContent = "A enviar…";
+  try {
+    const r = await fetch(API + "/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-MS78-Token": TOKEN },
+      body: JSON.stringify({ text, source: "ardosia" })
+    });
+    const j = await r.json();
+    if (r.ok && j.ok) {
+      st.className = "ok"; st.textContent = "✔ " + (j.reply || "guardado");
+      $("msg").value = "";
+      await carregar();
+    } else {
+      st.className = "err"; st.textContent = "❌ " + (j.error || r.status);
+    }
+  } catch (e) {
+    st.className = "err"; st.textContent = "❌ sem ligação";
+  }
+}
+
+async function carregarDias() {
+  try {
+    const r = await fetch(API + "/api/diarios/list?n=120");
+    const j = await r.json();
+    const sel = $("selDate");
+    sel.innerHTML = "";
+    const hoje = new Date().toISOString().slice(0, 10);
+    const dias = (j.ok && Array.isArray(j.days) && j.days.length) ? j.days : [hoje];
+    for (const d of dias) {
+      const opt = document.createElement("option");
+      opt.value = d; opt.textContent = d;
+      sel.appendChild(opt);
+    }
+    const idx = [...sel.options].findIndex(o => o.value === hoje);
+    if (idx >= 0) sel.selectedIndex = idx;
+  } catch (e) {
+    const sel = $("selDate"); sel.innerHTML = "";
+    const opt = document.createElement("option");
+    const hoje = new Date().toISOString().slice(0, 10);
+    opt.value = hoje; opt.textContent = hoje;
+    sel.appendChild(opt);
+  }
+}
+
+async function carregar() {
+  const date = $("selDate").value || new Date().toISOString().slice(0, 10);
+  try {
+    const r = await fetch(API + "/api/diarios/get?date=" + date);
+    const j = await r.json();
+    $("viewer").textContent = j.ok ? j.content : "❌ " + (j.error || "erro");
+  } catch (e) {
+    $("viewer").textContent = "(falha a carregar)";
+  }
+}
+
+$("send").onclick = enviar;
+$("btnAbrir").onclick = carregar;
+document.addEventListener("keydown", e => { if (e.ctrlKey && e.key === "Enter") enviar(); });
+
+(async () => {
+  await carregarDias();
+  await carregar();
+  setInterval(carregar, 30000);
+})();
+</script>
+</body>
+</html>

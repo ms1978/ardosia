@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ardósia — Checklist</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#00d4aa">
+  <style>
+    :root {
+      --bg:      #0d1117;
+      --surface: #161b22;
+      --surface2:#1c2128;
+      --border:  #30363d;
+      --accent:  #00d4aa;
+      --accent2: #0ea5e9;
+      --success: #3fb950;
+      --danger:  #f85149;
+      --warn:    #d29922;
+      --text:    #e6edf3;
+      --muted:   #8b949e;
+      --radius:  10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px; min-height: 100vh;
+    }
+    header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 20px; height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 9px; }
+    .logo-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 11px; color: #000;
+    }
+    .logo-text { font-weight: 600; font-size: 15px; }
+    a.back {
+      color: var(--text); font-size: 13px; text-decoration: none;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 5px 12px;
+    }
+    a.back:hover { border-color: var(--accent); color: var(--accent); }
+
+    main { max-width: 640px; margin: 0 auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* Overdue */
+    .overdue-box {
+      background: rgba(210,153,34,.08); border: 1px solid rgba(210,153,34,.3);
+      border-radius: var(--radius); padding: 12px 14px;
+    }
+    .overdue-title { font-size: 12px; color: var(--warn); font-weight: 600; margin-bottom: 8px; }
+
+    /* Add row */
+    .add-row { display: flex; gap: 8px; }
+    input[type=text] {
+      flex: 1; background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 10px 12px; font-family: inherit; font-size: 15px;
+      transition: border-color .2s;
+    }
+    input[type=text]:focus { outline: none; border-color: var(--accent); }
+
+    /* Buttons */
+    button {
+      border: none; border-radius: 6px; padding: 8px 14px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      font-family: inherit; transition: opacity .15s, background .15s;
+    }
+    .btn-add {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-weight: 700; padding: 10px 18px; font-size: 18px; line-height: 1;
+    }
+    .btn-close {
+      background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border); width: 100%; padding: 11px;
+      font-size: 14px;
+    }
+    .btn-close:hover { border-color: var(--accent); color: var(--accent); }
+
+    .footer-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 10px 16px;
+    }
+    .footer-bar .btn-close { margin: 0; }
+    main { padding-bottom: 70px; }
+
+    /* Section label */
+    .section-label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+
+    /* Items */
+    .item {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 12px;
+      transition: border-color .15s;
+    }
+    .item + .item { margin-top: 6px; }
+    .item.done   { opacity: .55; }
+    .item.abandoned { opacity: .4; }
+
+    .sym {
+      font-size: 15px; font-family: monospace; min-width: 16px;
+      text-align: center; color: var(--muted);
+    }
+    .item.pending .sym { color: var(--accent); }
+    .item.done    .sym { color: var(--success); }
+    .item.abandoned .sym { color: var(--danger); }
+
+    .item-text {
+      flex: 1; font-size: 14px; cursor: pointer; user-select: none;
+      transition: text-decoration .1s;
+    }
+    .item.done .item-text { text-decoration: line-through; }
+
+    .date-tag { font-size: 11px; color: var(--warn); white-space: nowrap; }
+
+    .item-actions { display: flex; gap: 5px; }
+    .act {
+      background: var(--surface2); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 5px;
+      padding: 4px 9px; font-size: 13px; font-family: monospace;
+    }
+    .act:hover { color: var(--text); border-color: var(--muted); }
+    .act.done-btn:hover { color: var(--success); border-color: var(--success); }
+    .act.abn-btn:hover  { color: var(--danger);  border-color: var(--danger); }
+    .act.mig-btn:hover  { color: var(--accent2); border-color: var(--accent2); }
+    .act.undo-btn:hover { color: var(--muted); }
+
+    .item.migrated { opacity: .6; border-color: rgba(14,165,233,.3); }
+    .item.migrated .sym { color: var(--accent2); }
+
+    .legend {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      font-size: 11px; color: var(--muted);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 8px 12px;
+    }
+    .legend span { white-space: nowrap; }
+    .legend b { font-family: monospace; }
+
+    #status { font-size: 13px; min-height: 18px; }
+    #status.ok  { color: var(--success); }
+    #status.err { color: var(--danger); }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">MS</div>
+    <div class="logo-text">Ardósia</div>
+  </div>
+  <a class="back" href="/dashboard">← dashboard</a>
+</header>
+
+<main>
+  <div id="overdueSection" style="display:none" class="overdue-box">
+    <div class="overdue-title">⚠ ATRASADOS — resolve antes de continuar</div>
+    <div id="overdueList"></div>
+  </div>
+
+  <div class="add-row">
+    <input id="input" type="text" placeholder="Novo item…" autocomplete="off">
+    <button class="btn-add" id="btnAdd">+</button>
+  </div>
+
+  <div class="section-label">Hoje</div>
+  <div id="todayList"></div>
+
+  <div id="tomorrowSection" style="display:none">
+    <div class="section-label" style="display:flex;align-items:center;justify-content:space-between">
+      <span style="color:var(--accent2)">Amanhã</span>
+      <a id="linkPlano" href="/plano" style="font-size:11px;color:var(--muted);text-decoration:none">ver tudo →</a>
+    </div>
+    <div id="tomorrowList"></div>
+  </div>
+
+  <div id="status"></div>
+
+  <div class="legend">
+    <span><b>•</b> pendente</span>
+    <span><b>×</b> feito</span>
+    <span><b>~</b> abandonado</span>
+    <span><b>&gt;</b> migrar para amanhã</span>
+  </div>
+</main>
+
+<div class="footer-bar">
+  <button class="btn-close" id="btnClose">📋 Fechar Dia</button>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const API   = window.location.origin;
+const TOKEN = localStorage.getItem('ms78token') || 'muda_este_token';
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function post(url, body) {
+  return fetch(API + url, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-MS78-Token': TOKEN},
+    body: JSON.stringify(body)
+  }).then(r => r.json());
+}
+
+async function load() {
+  const j = await fetch(API + '/api/checklist').then(r => r.json());
+  if (!j.ok) return;
+  const today = j.today;
+  const overdue  = j.items.filter(i => i.status === 'pending' && i.date < today);
+  const todayAll = j.items.filter(i => i.date === today);
+
+  // overdue
+  const os = $('overdueSection');
+  if (overdue.length) {
+    os.style.display = 'block';
+    $('overdueList').innerHTML = overdue.map(i => `
+      <div class="item pending" style="margin-top:6px">
+        <span class="sym">•</span>
+        <span class="item-text">${esc(i.text)}</span>
+        <span class="date-tag">${i.date}</span>
+        <div class="item-actions">
+          <button class="act mig-btn" onclick="upd('${i.id}','migrated')">›› hoje</button>
+          <button class="act abn-btn" onclick="upd('${i.id}','abandoned')">~ abandonar</button>
+        </div>
+      </div>`).join('');
+  } else {
+    os.style.display = 'none';
+  }
+
+  // today
+  const pending   = todayAll.filter(i => i.status === 'pending');
+  const migrated  = todayAll.filter(i => i.status === 'migrated');
+  const done      = todayAll.filter(i => i.status === 'done');
+  const abandoned = todayAll.filter(i => i.status === 'abandoned');
+
+  // amanhã
+  const d = new Date(today + 'T12:00:00'); d.setDate(d.getDate() + 1);
+  const tomorrow = d.toISOString().slice(0, 10);
+  const tomorrowItems = j.items.filter(i => i.date === tomorrow);
+  const ts = $('tomorrowSection');
+  if (tomorrowItems.length) {
+    ts.style.display = 'block';
+    $('tomorrowList').innerHTML = tomorrowItems.map(i => `
+      <div class="item pending" style="border-color:rgba(14,165,233,.25)">
+        <span class="sym" style="color:var(--accent2)">›</span>
+        <span class="item-text" style="color:var(--muted)">${esc(i.text)}</span>
+      </div>`).join('');
+  } else {
+    ts.style.display = 'none';
+  }
+
+  $('todayList').innerHTML = [...pending, ...migrated, ...done, ...abandoned].map(i => {
+    const sym  = {pending:'•', done:'×', abandoned:'~', migrated:'>'}[i.status] || '•';
+    let acts = '';
+    if (i.status === 'pending') {
+      acts = `<button class="act done-btn" onclick="upd('${i.id}','done')" title="Feito">×</button>
+              <button class="act mig-btn"  onclick="upd('${i.id}','migrated')" title="Amanhã">&gt;</button>
+              <button class="act abn-btn"  onclick="upd('${i.id}','abandoned')" title="Abandonar">~</button>`;
+    } else {
+      acts = `<button class="act undo-btn" onclick="upd('${i.id}','pending')" title="Repor">↩</button>`;
+    }
+    return `<div class="item ${i.status}">
+      <span class="sym">${sym}</span>
+      <span class="item-text" onclick="toggleDone('${i.id}','${i.status}')">${esc(i.text)}</span>
+      <div class="item-actions">${acts}</div>
+    </div>`;
+  }).join('');
+}
+
+async function upd(id, status) {
+  await post('/api/checklist/update', {id, status});
+  await load();
+}
+
+async function toggleDone(id, status) {
+  await upd(id, status === 'pending' ? 'done' : 'pending');
+}
+
+async function addItem() {
+  const inp = $('input');
+  const text = inp.value.trim();
+  if (!text) return;
+  await post('/api/checklist/add', {text});
+  inp.value = '';
+  inp.focus();
+  await load();
+}
+
+async function closeDay() {
+  const today = new Date().toISOString().slice(0, 10);
+  const j = await post('/api/checklist/close', {date: today});
+  const st = $('status');
+  if (j.ok) {
+    st.className = 'ok';
+    st.textContent = j.closed ? `✔ Dia fechado — ${j.closed} item(s) no diário` : '✔ Dia fechado (sem items para registar)';
+    await load();
+  } else {
+    st.className = 'err';
+    st.textContent = '❌ ' + j.error;
+  }
+  setTimeout(() => { st.textContent = ''; st.className = ''; }, 4000);
+}
+
+$('btnAdd').onclick  = addItem;
+$('btnClose').onclick = closeDay;
+$('input').addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
+
+load();
+setInterval(load, 20000);
+</script>
+</body>
+</html>

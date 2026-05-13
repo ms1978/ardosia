@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ardósia MS78</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#00d4aa">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ardósia">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <style>
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #1c2128;
+      --border:   #30363d;
+      --accent:   #00d4aa;
+      --accent2:  #0ea5e9;
+      --danger:   #f85149;
+      --warn:     #d29922;
+      --success:  #3fb950;
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --radius:   10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px; color: #000;
+    }
+    .logo-text { font-weight: 600; font-size: 16px; }
+    .logo-sub  { font-size: 11px; color: var(--muted); }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    #headerStatus { font-size: 12px; color: var(--muted); }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: #444c56; }
+    .card-span2 { grid-column: span 2; }
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    button, .btn {
+      border: none; border-radius: 6px; padding: 7px 13px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: inherit;
+    }
+    button:active, .btn:active { transform: scale(.97); }
+
+    .btn-ghost {
+      background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: #2d333b; }
+    .btn-accent { background: var(--accent); color: #000; font-weight: 700; }
+    .btn-accent:hover { opacity: .85; }
+    .btn-blue  { background: var(--accent2); color: #fff; font-weight: 600; }
+    .btn-blue:hover  { opacity: .85; }
+    .btn-send {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-weight: 700; padding: 8px 22px;
+    }
+
+    .prefix-grid { display: flex; gap: 6px; flex-wrap: wrap; }
+    .prefix-btn {
+      background: var(--surface2); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 5px 11px; font-size: 12px; cursor: pointer;
+      font-family: inherit;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .prefix-btn:hover {
+      background: rgba(0,212,170,.1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    textarea {
+      width: 100%; background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 12px; font-family: inherit; font-size: 14px;
+      resize: vertical; min-height: 110px; line-height: 1.6;
+      transition: border-color .2s;
+    }
+    textarea:focus { outline: none; border-color: var(--accent); }
+
+    input[type=text], input[type=password] {
+      background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 7px 10px; font-family: inherit; font-size: 14px;
+      transition: border-color .2s; width: 100%;
+    }
+    input:focus { outline: none; border-color: var(--accent); }
+
+    input[type=file] {
+      background: var(--surface2); color: var(--muted);
+      border: 1px dashed var(--border); border-radius: 6px;
+      padding: 8px; width: 100%; cursor: pointer; font-family: inherit;
+    }
+
+    pre {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px;
+      font-size: 12px; font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      white-space: pre-wrap; overflow-y: auto; max-height: 220px;
+      color: var(--text); line-height: 1.6;
+    }
+    pre.tall { max-height: 320px; }
+
+    #reply { font-size: 13px; min-height: 20px; transition: color .2s; }
+    #reply.ok  { color: var(--success); }
+    #reply.err { color: var(--danger); }
+
+    .hint { font-size: 12px; color: var(--muted); }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+
+    @media(max-width:680px){
+      .card-span2 { grid-column: span 1; }
+      header { padding: 0 16px; }
+      main { padding: 16px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">MS</div>
+    <div>
+      <div class="logo-text">Ardósia</div>
+      <div class="logo-sub">MS78 Field System</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span id="headerStatus">—</span>
+    <div class="status-dot" id="statusDot"></div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ESCREVER -->
+  <div class="card card-span2">
+    <div class="card-title">✏️ Escrever</div>
+    <div class="prefix-grid">
+      <button class="prefix-btn" onclick="smartPrefix('CANAL: ')">⬛ CANAL</button>
+      <button class="prefix-btn" onclick="smartPrefix('SAT: ')">✦ SAT</button>
+      <button class="prefix-btn" onclick="smartPrefix('RESUMO: ')">⚡ RESUMO</button>
+      <button class="prefix-btn" onclick="smartPrefix('NOTA: ')">📝 NOTA</button>
+      <button class="prefix-btn" onclick="smartPrefix('ALERTA: ')">⚠️ ALERTA</button>
+      <button class="prefix-btn" onclick="smartPrefix('CONCLUIDO: ')">✅ CONCLUÍDO</button>
+      <button class="prefix-btn" onclick="smartPrefix('IMPORTANTE: ')">🔒 IMPORTANTE</button>
+    </div>
+    <textarea id="msg" placeholder="Escreve aqui ou usa os botões de prefixo..."></textarea>
+    <div class="btn-row" style="justify-content:space-between">
+      <span class="hint">Ctrl+Enter envia</span>
+      <button class="btn-send" onclick="send()">➤ Enviar</button>
+    </div>
+    <div id="reply"></div>
+  </div>
+
+  <!-- DIÁRIO HOJE -->
+  <div class="card">
+    <div class="card-title">📓 Diário de Hoje</div>
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="loadToday()">↻ Atualizar</button>
+      <a class="btn btn-ghost" href="/arquivo/diarios/" target="_blank">📂 Pasta</a>
+      <a class="btn btn-ghost" href="/notas">📝 Notas</a>
+      <a class="btn btn-ghost" href="/checklist">☑ Checklist</a>
+    </div>
+    <pre class="tall" id="todayBox">A carregar...</pre>
+  </div>
+
+  <!-- ÚLTIMOS DIAS -->
+  <div class="card">
+    <div class="card-title">📅 Últimos Dias</div>
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="loadDays()">↻ Listar</button>
+    </div>
+    <pre id="daysBox">[clica Listar]</pre>
+  </div>
+
+  <!-- PESQUISA -->
+  <div class="card">
+    <div class="card-title">🔍 Pesquisa</div>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="searchQ" placeholder="Palavra a pesquisar..." style="flex:1"
+             onkeydown="if(event.key==='Enter') search()" />
+      <button class="btn-accent" onclick="search()">Pesquisar</button>
+    </div>
+    <pre id="searchBox" style="max-height:260px">[aguarda pesquisa]</pre>
+  </div>
+
+  <!-- ARQUIVO -->
+  <div class="card">
+    <div class="card-title">📦 Arquivo</div>
+    <div class="btn-row">
+      <a class="btn btn-ghost" href="/arquivo/" target="_blank">📂 Arquivo</a>
+      <a class="btn btn-ghost" href="/api/export/diarios" download>⬇️ Exportar</a>
+      <button class="btn-blue" id="btnSync" onclick="sync()">🔄 Sincronizar</button>
+    </div>
+    <p class="hint">Exporta todos os diários + fotos em .zip</p>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="card">
+    <div class="card-title">📎 Anexar</div>
+    <form id="uploadForm" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:10px">
+      <input type="file" id="fileInput" name="file" accept="image/*,audio/*,.pdf" />
+      <button type="submit" class="btn-ghost">📎 Enviar ficheiro</button>
+    </form>
+    <pre id="uploadStatus">[aguarda envio]</pre>
+  </div>
+
+  <!-- TOKEN / STATUS -->
+  <div class="card">
+    <div class="card-title">🔑 Acesso</div>
+    <pre id="statusBox">—</pre>
+    <input id="token" type="password" placeholder="X-MS78-Token (opcional)" />
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="saveToken()">💾 Guardar</button>
+      <button class="btn-ghost" onclick="clearToken()">🗑 Limpar</button>
+    </div>
+    <div id="tokenStatus" class="hint"></div>
+  </div>
+
+</main>
+
+<script>
+const PREFIXES = ["CANAL:","SAT:","RESUMO:","NOTA:","ALERTA:","CONCLUIDO:","IMPORTANTE:"];
+function hasOnlyPrefix(s){ const t=(s||"").trim().toUpperCase(); return PREFIXES.some(p=>t===p); }
+function apiBase(){ return window.location.origin; }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function getToken(){ return localStorage.getItem('ms78token')||''; }
+
+function saveToken(){
+  localStorage.setItem('ms78token', document.getElementById('token').value.trim());
+  document.getElementById('tokenStatus').textContent = '✔ Guardado';
+}
+function clearToken(){
+  localStorage.removeItem('ms78token');
+  document.getElementById('token').value = '';
+  document.getElementById('tokenStatus').textContent = 'Limpo';
+}
+
+function setReply(t, type=''){
+  const el = document.getElementById('reply');
+  el.textContent = t; el.className = type;
+}
+
+async function smartPrefix(p){
+  const ta = document.getElementById('msg');
+  const re = /^(canal|sat|resumo|nota|alerta|concluido|importante):\s*/i;
+  if(!ta.value.trim()){ ta.value=p; ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length); return; }
+  if(!re.test(ta.value)){ ta.value=p+ta.value; ta.focus(); return; }
+  if(hasOnlyPrefix(ta.value)){ ta.focus(); return; }
+  await send();
+}
+
+async function send(){
+  const msgEl = document.getElementById('msg');
+  const text  = msgEl.value.trim();
+  if(!text){ setReply('❌ Texto vazio','err'); return; }
+  if(hasOnlyPrefix(text)){ setReply('❌ Escreve algo depois do prefixo.','err'); msgEl.focus(); return; }
+  setReply('A enviar…');
+  try {
+    const r = await fetch(apiBase()+'/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-MS78-Token':getToken()},
+      body:JSON.stringify({text,source:'ardosia'})
+    });
+    const j = await r.json();
+    if(!r.ok){ setReply('❌ '+r.status,'err'); return; }
+    setReply('✔ '+(j.reply||'OK'),'ok');
+    msgEl.value='';
+    loadToday();
+  } catch(e){ setReply('❌ Falha de rede','err'); }
+}
+
+async function ping(){
+  const dot = document.getElementById('statusDot');
+  const hdr = document.getElementById('headerStatus');
+  try {
+    const r = await fetch(apiBase()+'/api/ping');
+    const j = await r.json();
+    dot.style.cssText = 'background:#3fb950;box-shadow:0 0 6px #3fb950;animation:pulse 2s infinite';
+    hdr.textContent   = 'Online · '+new Date(j.ts).toLocaleTimeString('pt-PT');
+    document.getElementById('statusBox').textContent = '✔ API OK — '+j.ts;
+  } catch(e){
+    dot.style.cssText = 'background:#f85149;box-shadow:0 0 6px #f85149';
+    hdr.textContent   = 'Offline';
+    document.getElementById('statusBox').textContent = '❌ API inacessível';
+  }
+}
+
+async function loadToday(){
+  const box = document.getElementById('todayBox');
+  box.textContent = 'A carregar...';
+  try {
+    const r = await fetch(apiBase()+'/api/diarios/get?date='+todayStr());
+    const j = await r.json();
+    box.textContent = j.ok ? (j.content||'[vazio]').split('\n').slice(-120).join('\n') : '❌ '+(j.error||'erro');
+  } catch(e){ box.textContent='❌ Falha'; }
+}
+
+async function loadDays(){
+  const box = document.getElementById('daysBox');
+  box.textContent = 'A carregar...';
+  try {
+    const r = await fetch(apiBase()+'/api/diarios/list?n=14');
+    const j = await r.json();
+    box.textContent = j.ok ? (j.days||[]).map(d=>'• '+d).join('\n') : '❌ '+(j.error||'erro');
+  } catch(e){ box.textContent='❌ Falha'; }
+}
+
+async function sync(){
+  const btn = document.getElementById('btnSync');
+  btn.textContent='⏳ A sincronizar…'; btn.disabled=true;
+  try {
+    const r = await fetch(apiBase()+'/api/sync',{method:'POST',headers:{'Content-Type':'application/json','X-MS78-Token':getToken()}});
+    const j = await r.json();
+    btn.textContent = j.ok ? '✔ Sincronizado' : '❌ Erro';
+    setTimeout(()=>{ btn.textContent='🔄 Sincronizar'; btn.disabled=false; },3000);
+  } catch(e){
+    btn.textContent='❌ Sem ligação';
+    setTimeout(()=>{ btn.textContent='🔄 Sincronizar'; btn.disabled=false; },3000);
+  }
+}
+
+async function search(){
+  const q   = document.getElementById('searchQ').value.trim();
+  const box = document.getElementById('searchBox');
+  if(!q){ box.textContent='❌ Escreve uma palavra'; return; }
+  box.textContent='A pesquisar...';
+  try {
+    const r = await fetch(apiBase()+'/api/search?q='+encodeURIComponent(q)+'&n=30');
+    const j = await r.json();
+    if(!j.ok){ box.textContent='❌ '+(j.error||'erro'); return; }
+    if(!j.results.length){ box.textContent='Sem resultados para: '+q; return; }
+    box.textContent = j.results.map(e=>e.date+' '+e.time+' ['+e.mode+']\n'+e.preview+'\n'+'─'.repeat(40)).join('\n');
+  } catch(e){ box.textContent='❌ Falha'; }
+}
+
+document.getElementById('uploadForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const box = document.getElementById('uploadStatus');
+  const fi  = document.getElementById('fileInput');
+  if(!fi.files.length){ box.textContent='❌ Nenhum ficheiro'; return; }
+  const fd = new FormData();
+  fd.append('file', fi.files[0]);
+  box.textContent='A enviar...';
+  try {
+    const r = await fetch(apiBase()+'/api/colagens/upload',{method:'POST',body:fd});
+    const j = await r.json();
+    box.textContent = j.ok ? '✔ Enviado:\n'+j.link : '❌ '+(j.error||'erro');
+  } catch(e){ box.textContent='❌ Falha'; }
+});
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const t = getToken();
+  if(t) document.getElementById('token').value = t;
+  document.getElementById('msg').addEventListener('keydown', e=>{
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){ e.preventDefault(); send(); }
+  });
+  ping();
+  loadToday();
+  loadDays();
+  setInterval(ping, 60000);
+});
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+</body>
+</html>
